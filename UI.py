@@ -1,17 +1,14 @@
 import tkinter as tk
-from handler_class import Handler
+from commander import *
 from datetime import datetime
 
 class UI:
-    def __init__(this, window_name, controller, testing):
-        this.testing = testing
-        this.controller = controller
-        this.handler = Handler(this, this.controller, this.testing)
-        this.window_name = window_name
-
+    def __init__(this, window_name, testing):
         root = tk.Tk()
 
         #globals
+        this.testing = testing
+        this.window_name = window_name
         this.x_Label_text = tk.StringVar(value = "x: 0")
         this.y_Label_text = tk.StringVar(value = "y: 0")
         this.z_Label_text = tk.StringVar(value = "z: 0")
