@@ -106,10 +106,10 @@ class UI:
         root.mainloop()
 
     #setter for x y z
-    def setxyz(this, x, y, z):
-        this.x_Label_text.set("x: " + str(x))
-        this.y_Label_text.set("y: " + str(y))
-        this.z_Label_text.set("z: " + str(z))
+    def updatexyz(this):
+        this.x_Label_text.set("x: " + str(this.v.x))
+        this.y_Label_text.set("y: " + str(this.v.y))
+        this.z_Label_text.set("z: " + str(this.v.z))
     
     def toggle_steppers(this):
         if this.v.stepper_status:

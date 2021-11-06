@@ -1,6 +1,6 @@
 #IO handler
 
-#set to false when testing on PC
+#set to False when testing on PC
 t = False 
 
 if t:
@@ -25,9 +25,9 @@ def StringToBytes(val):
                 retVal.append(ord(c))
         return retVal
 
-def sendI2C(db, m):
+def sendI2C(d, m):
+    d.log("sending: " + m)
     if t:
-        db.log("sending: " + m)
         writeData(m)
 
 def readIO(db):
@@ -43,7 +43,7 @@ def set_microstepping(res):
 
 def set_steppers(inp):
     if t:
-        if(inp == True):
+        if(inp == "True"):
             GPIO.output(14, 1)
         else:
             GPIO.output(14, 0)
