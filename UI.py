@@ -114,9 +114,9 @@ class UI:
     def toggle_steppers(this):
         if this.v.stepper_status:
             this.v.stepper_status = False
-            command("setsteppers False")
+            command("setsteppers False", this, this.d, this.v)
             this.stepper_Label_text.set("OFF")
         else:
             this.v.stepper_status = True
-            command("setsteppers True")
+            command("setsteppers True", this, this.d, this.v)
             this.stepper_Label_text.set("ON")

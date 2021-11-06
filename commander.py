@@ -1,7 +1,6 @@
 #communicator that converts text commands into things to send over I2C or GPIO
 
 from IO import *
-resolution = {"1": (0, 0, 0),"2": (1, 0, 0),"4": (0, 1, 0),"8": (1, 1, 0),"16": (0, 0, 1),"32": (1, 0, 1)}
 
 def command(m, UI, db, v):
     m_list = m.split()
@@ -28,9 +27,12 @@ def command(m, UI, db, v):
         #TODO: make moveto with i2c
 
     elif command == "setmicro":
+        UI.console_addline("> setting microstepping to " + args[0])
         set_microstepping(args[0])
 
     elif command == "setsteppers":
+        UI.console_addline("> set steppers to " + args[0])
+        v.ms = args[0]
         set_steppers(args[0])
     
     elif command == "moveby":
@@ -42,9 +44,9 @@ def command(m, UI, db, v):
         y_dif = abs(v.y - y_in)
         z_dif = abs(v.z - z_in)
 
-        v.x = v.x - x_in
-        v.y = v.y - y_in
-        v.z = v.z - z_in
+        v.x = v.x + x_in
+        v.y = v.y + y_in
+        v.z = v.z + z_in
 
         UI.setxyz(v.x, v.y, v.z)
 
