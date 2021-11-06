@@ -3,17 +3,17 @@ from commander import *
 from datetime import datetime
 
 class UI:
-    def __init__(this, window_name, testing):
+    def __init__(this, v, d, window_name, testing):
         root = tk.Tk()
 
-        #globals
+        this.d = d
+        this.v = v
+
         this.testing = testing
         this.window_name = window_name
         this.x_Label_text = tk.StringVar(value = "x: 0")
         this.y_Label_text = tk.StringVar(value = "y: 0")
         this.z_Label_text = tk.StringVar(value = "z: 0")
-        this.stepper_status = False
-        this.light_status = False
         this.stepper_Label_text = tk.StringVar(value = "OFF")
         this.light_Label_text = tk.StringVar(value = "OFF")
         this.Lb = tk.Listbox()
@@ -28,7 +28,7 @@ class UI:
         text = this.inp.get()
         this.inp.delete(0, tk.END)
         this.console_addline(text)
-        this.handler.commander(text)
+        command(text, this, this.d, this.v)
         
     def create_UI(this, root):
         root.title(this.window_name)
@@ -39,15 +39,12 @@ class UI:
         arrow_Frame.place(anchor="w", relx=0, rely=0.5)
 
         chars = ["↖", "↑", "↗", "←", "o", "→", "↙", "↓", "↘"]
-        s = 50 #configure amount of steps here
-        if not this.testing:
-            command_inputs = [
-                lambda: this.handler.arrows(-s, s), lambda: this.handler.arrows(s, 0), lambda: this.handler.arrows(s, s),
-                lambda: this.handler.arrows(0, -s), lambda: this.controller.auto_home(this), lambda: this.handler.arrows(0, s),
-                lambda: this.handler.arrows(-s, -s), lambda: this.handler.arrows(-s, 0), lambda: this.handler.arrows(s, -s)
-            ]
-        else:
-            command_inputs = [print("test"), print("test"), print("test"), print("test"), print("test"), print("test"), print("test"), print("test"), print("test")]
+        s = 50 #configure amount of steps per button press here
+        command_inputs = [
+            lambda: command("moveby " + str(-s) + " " + str(s) + " 0", this, this.d, this.v), lambda: command("moveby " + str(s) + " " + str(0) + " 0", this, this.d, this.v), lambda: command("moveby " + str(s) + " " + str(s) + " 0", this, this.d, this.v),
+            lambda: command("moveby " + str(0) + " " + str(-s) + " 0", this, this.d, this.v), lambda: command("autohome", this, this.d, this.v), lambda: command("moveby " + str(0) + " " + str(s) + " 0", this, this.d, this.v),
+            lambda: command("moveby " + str(-s) + " " + str(-s) + " 0", this, this.d, this.v), lambda: command("moveby " + str(-s) + " " + str(0) + " 0", this, this.d, this.v), lambda: command("moveby " + str(s) + " " + str(-s) + " 0", this, this.d, this.v)
+        ]
         arrow_buttons = []
         posx = 0
         posy = 0
@@ -115,19 +112,11 @@ class UI:
         this.z_Label_text.set("z: " + str(z))
     
     def toggle_steppers(this):
-        if this.stepper_status:
-            this.stepper_status = False
-            this.controller.set_stepper(False)
+        if this.v.stepper_status:
+            this.v.stepper_status = False
+            command("setsteppers False")
             this.stepper_Label_text.set("OFF")
         else:
-            this.stepper_status = True
-            this.controller.set_stepper(True)
+            this.v.stepper_status = True
+            command("setsteppers True")
             this.stepper_Label_text.set("ON")
-    
-    def ui_set_steppers(this, status):
-        this.stepper_status = status
-        this.controller.set_stepper(status)
-        if status:
-            this.stepper_Label_text.set("ON")
-        else:
-            this.stepper_Label_text.set("OFF")

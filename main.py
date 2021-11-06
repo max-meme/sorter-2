@@ -1,7 +1,10 @@
 from debug import Debug
+from varman import Varman
 from UI import UI
 
 d = Debug(open("debug.txt", "w"), True)
-d.log("Starting Sorter :D \nCreating UI")
-ui = UI("sorter", False)
+v = Varman(500, 500, 100)
+d.log("Starting Sorter :D")
+d.log("Creating UI")
+ui = UI(v, "Sorter", d, False)
 

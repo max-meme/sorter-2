@@ -1,9 +1,9 @@
 #communicator that converts text commands into things to send over I2C or GPIO
 
 from IO import *
-resolution = {"1": (0, 0, 0),"1/2": (1, 0, 0),"1/4": (0, 1, 0),"1/8": (1, 1, 0),"1/16": (0, 0, 1),"1/32": (1, 0, 1)}
+resolution = {"1": (0, 0, 0),"2": (1, 0, 0),"4": (0, 1, 0),"8": (1, 1, 0),"16": (0, 0, 1),"32": (1, 0, 1)}
 
-def command(m, UI, db):
+def command(m, UI, db, v):
     m_list = m.split()
     command = m_list[0]
     m_list.pop(0)
@@ -16,7 +16,7 @@ def command(m, UI, db):
     elif command == "autohome":
         UI.console_addline("> autohoming")
         UI.setxyz(0, 0, 0)
-        sendI2C(db, "")
+        sendI2C(db, "ah")
     
     elif command == "moveto":
         # check if negative
@@ -30,5 +30,22 @@ def command(m, UI, db):
     elif command == "setmicro":
         set_microstepping(args[0])
 
-    elif command == "setstepper":
+    elif command == "setsteppers":
         set_steppers(args[0])
+    
+    elif command == "moveby":
+        x_in = int(args[0])
+        y_in = int(args[1])
+        z_in = int(args[2])
+
+        x_dif = abs(v.x - x_in)
+        y_dif = abs(v.y - y_in)
+        z_dif = abs(v.z - z_in)
+
+        v.x = v.x - x_in
+        v.y = v.y - y_in
+        v.z = v.z - z_in
+
+        UI.setxyz(v.x, v.y, v.z)
+
+        
