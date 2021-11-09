@@ -1,5 +1,7 @@
 #IO handler
 
+#TODO make recieving end for arduino I2C
+
 #set to False when testing on PC
 t = False 
 

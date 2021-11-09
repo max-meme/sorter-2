@@ -3,13 +3,12 @@ from commander import *
 from datetime import datetime
 
 class UI:
-    def __init__(this, v, d, window_name, testing):
+    def __init__(this, v, d, window_name):
         root = tk.Tk()
 
         this.d = d
         this.v = v
 
-        this.testing = testing
         this.window_name = window_name
         this.x_Label_text = tk.StringVar(value = "x: 0")
         this.y_Label_text = tk.StringVar(value = "y: 0")
@@ -35,7 +34,7 @@ class UI:
         root.geometry("800x700")
 
         #arrow buttons
-        arrow_Frame = tk.Frame(root, height = 200, width = 200)
+        arrow_Frame = tk.Frame(root, height = 200, width = 300)
         arrow_Frame.place(anchor="w", relx=0, rely=0.5)
 
         chars = ["↖", "↑", "↗", "←", "o", "→", "↙", "↓", "↘"]
@@ -57,6 +56,19 @@ class UI:
             if(posx == 3):
                 posy = posy + 1
                 posx = 0
+            i = i + 1
+        
+        # z arrow buttons
+        chars2 = ["↑", "↓"]
+        posx = 0
+        posy = 0
+        i = 0
+        command_inputs2 = [lambda: command("moveby 0 0 " + str(s), this, this.d, this.v), lambda: command("moveby 0 0 " + str(-s), this, this.d, this.v)]
+        for c in chars2:
+            temp_button = tk.Button(arrow_Frame, text = c, height = 2, width = 4, command = command_inputs2[i])
+            temp_button.grid(column = 4, row = posy, padx=2, pady=2)
+            arrow_buttons.append(temp_button)
+            posy = posy + 1
             i = i + 1
 
         #console
@@ -105,7 +117,7 @@ class UI:
 
         root.mainloop()
 
-    #setter for x y z
+    #updater for x y z
     def updatexyz(this):
         this.x_Label_text.set("x: " + str(this.v.x))
         this.y_Label_text.set("y: " + str(this.v.y))
