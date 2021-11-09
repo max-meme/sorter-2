@@ -1,6 +1,7 @@
 import tkinter as tk
 from commander import *
 from datetime import datetime
+from keyb import *
 
 class UI:
     def __init__(this, v, d, window_name):
@@ -8,6 +9,9 @@ class UI:
 
         this.d = d
         this.v = v
+
+        #keypress detection
+        root.bind("<Key>", this.keypressed)
 
         this.window_name = window_name
         this.x_Label_text = tk.StringVar(value = "x: 0")
@@ -63,7 +67,7 @@ class UI:
         posx = 0
         posy = 0
         i = 0
-        command_inputs2 = [lambda: command("moveby 0 0 " + str(s), this, this.d, this.v), lambda: command("moveby 0 0 " + str(-s), this, this.d, this.v)]
+        command_inputs2 = [lambda: command("moveby 0 0 " + str(-s), this, this.d, this.v), lambda: command("moveby 0 0 " + str(s), this, this.d, this.v)]
         for c in chars2:
             temp_button = tk.Button(arrow_Frame, text = c, height = 2, width = 4, command = command_inputs2[i])
             temp_button.grid(column = 4, row = posy, padx=2, pady=2)
@@ -132,3 +136,6 @@ class UI:
             this.v.stepper_status = True
             command("setsteppers True", this, this.d, this.v)
             this.stepper_Label_text.set("ON")
+    
+    def keypressed(this, event):
+        keyb_detect(event.keysym, this, this.d, this.v)

@@ -1,6 +1,7 @@
 from debug import Debug
 from varman import Varman
 from UI import UI
+from keyb import *
 
 d = Debug(open("debug.txt", "w"), True)
 v = Varman(500, 500, 100)
