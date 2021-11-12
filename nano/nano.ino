@@ -2,6 +2,11 @@
 
 //---Globals---
 
+// x y z stuff
+int x = 0;
+int y = 0;
+int z = 0;
+
 //consts
 const int DRV_count = 6;
 const int adress = 0x8;
@@ -11,8 +16,13 @@ const int arglenght = 8;
 //All pins used
 const int pins[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, LED_BUILTIN};
 
-//All DRVs in with their respective pins
+//All DRVs in with their respective pins in the following order: x1, x2, y, z
 const int DRVs[DRV_count][2] = {{2, 3}, {4, 5}, {6, 7}, {8, 9}, {10, 11}, {14, 15}};
+
+//what to set the dir pin so the stepper moves backwards / forwards
+const int DRV_dirs[DRV_count][2] = {{1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}};
+
+const int ah[DRV_count][2] = {{3, -1}, {0, 1}, {2, -1}};
 
 char temp[32];
 String cmd = "";
@@ -38,17 +48,24 @@ void loop() {
 
 //executes I2C command
 void exec() {
-  if(cmd == "step"){
-    step(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt());
+  if(cmd == "selftest") {
+    for(int i = 0; i < 5; i++) {
+      blinkLED();
+    }
+    testDRVs();
   }
-  else if(cmd == "step2") {
-    step2(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt(), args[4].toInt());
+
+  if(cmd == "ah"){
+    autohome(agrs[0]);
+  }
+  else if(cmd == "moveto") {
+
   }
   else if(cmd == "ah") {
     autohome(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt());
   }
   else if(cmd == "limit") {
-    limit++;
+    limit = true;
   }
   cmd = "";
   for(int i = 0; i < arglenght; i++) {
@@ -56,46 +73,56 @@ void exec() {
   }
 }
 
-void autohome(int drv1, int drv2, int dir, int divider) {
-  while(limit == false) {
-    if(drv2 == 0) {
-      step(drv1, 10, dir, divider);
+void autohome(int ms) {
+  for(int i = 0; i < 3; i++) {
+    limit = false;
+
+    int drv = ah[i][1];
+    int drv2 = ah[i][2];
+    
+    int step_pin = DRVs[drv][1];
+    int dir_pin = DRVs[drv][2];
+    digitalWrite(dir_pin, ah[drv]);
+
+    if(drv2 != -1) {
+      int step_pin2 = DRVs[drv][1];
+      int dir_pin2 = DRVs[drv2][2];
+      digitalWrite(dir_pin2, ah[drv2]);
+
+      while(limit == false) {
+        step2(step_pin, step_pin2, ms);
+      }
     }
     else {
-      step2(drv1, drv2, 10, dir, divider);
+      while(limit == false) {
+        step(step_pin, ms);
+      }
     }
   }
+  x = 0;
+  y = 0;
+  z = 0;
 }
 
-//makes as many steps as given in the direction given and with the controller given
-void step(int drv, int steps, int dir, int divider) {
-  int step_pin = DRVs[drv][1];
-  int dir_pin = DRVs[drv][2];
-  digitalWrite(dir_pin, dir);
-  for(int i = 0; i < steps; i++) {
-    digitalWrite(step_pin, HIGH);
-    delay(stepdelay / divider);
-    digitalWrite(step_pin, LOW);
-    delay(stepdelay / divider);
-  }
+//axis: 0 = x; 1 = y; 2 = z;
+void home(int axis) {
+  
 }
 
-//makes as many steps as given in the direction given and with the controller given for 2 motors at the same time
-void step2(int drv1, int drv2, int steps, int dir, int divider) {
-  int step_pin1 = DRVs[drv1][1];
-  int dir_pin1 = DRVs[drv1][2];
-  int step_pin2 = DRVs[drv2][1];
-  int dir_pin2 = DRVs[drv2][2];
-  digitalWrite(dir_pin1, dir);
-  digitalWrite(dir_pin2, dir);
-  for(int i = 0; i < steps; i++) {
-    digitalWrite(step_pin1, HIGH);
-    digitalWrite(step_pin2, HIGH);
-    delay(stepdelay / divider);
-    digitalWrite(step_pin1, LOW);
-    digitalWrite(step_pin2, LOW);
-    delay(stepdelay / divider);
-  }
+void step(int pin, int ms) {
+  digitalWrite(pin, HIGH);
+  delay(stepdelay / ms);
+  digitalWrite(pin, LOW);
+  delay(stepdelay / ms);
+}
+
+void step2(int pin , int pin2, int ms) {
+  digitalWrite(pin, HIGH);
+  digitalWrite(pin2, HIGH);
+  delay(stepdelay / ms);
+  digitalWrite(pin, LOW);
+  digitalWrite(pin2, LOW);
+  delay(stepdelay / ms);
 }
 
 //called when I2C revieves a message
@@ -136,6 +163,7 @@ void recieveEvent(int howMany) {
 //tests all DRV stepper drivers
 void testDRVs() {
   for(int i = 0; i < DRV_count; i++) {
+    Serial.println("Testing DRV " + i);
     int step_pin = DRVs[i][1];
     int dir_pin = DRVs[i][2];
 
